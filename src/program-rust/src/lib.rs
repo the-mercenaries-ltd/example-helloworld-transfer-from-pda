@@ -32,6 +32,9 @@ pub fn process_instruction(
     // Get the account to say hello to
     let account = next_account_info(accounts_iter)?;
 
+    msg!("account.owner: {}", account.owner);
+    msg!("program_id: {}", program_id);
+
     // The account must be owned by the program in order to modify its data
     if account.owner != program_id {
         msg!("Greeted account does not have the correct program id");
