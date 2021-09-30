@@ -37,6 +37,8 @@ let programId: PublicKey;
  */
 let greetedPubkey: PublicKey;
 
+let greetedBump: number;
+
 /**
  * Path to program files
  */
@@ -161,38 +163,22 @@ export async function checkProgram(): Promise<void> {
   console.log(`Using program ${programId.toBase58()}`);
 
   // Derive the address (public key) of a greeting account from the program so that it's easy to find later.
-  const GREETING_SEED = 'hello';
-  greetedPubkey = await PublicKey.createWithSeed(
-    payer.publicKey,
-    GREETING_SEED,
+  const GREETING_SEED = 'OgWtHESIlSfvTuwkWqTBYMFogtroUqSt';
+  [ greetedPubkey, greetedBump ] = await PublicKey.findProgramAddress(
+    [ Buffer.from(GREETING_SEED, 'utf8') ],
     programId,
   );
 
-  // Check if the greeting account has already been created
-  const greetedAccount = await connection.getAccountInfo(greetedPubkey);
-  if (greetedAccount === null) {
-    console.log(
-      'Creating account',
-      greetedPubkey.toBase58(),
-      'to say hello to',
-    );
-    const lamports = await connection.getMinimumBalanceForRentExemption(
-      GREETING_SIZE,
-    );
+  console.log(
+    'Created account',
+    greetedPubkey.toBase58(),
+    'to say hello to',
+  );
 
-    const transaction = new Transaction().add(
-      SystemProgram.createAccountWithSeed({
-        fromPubkey: payer.publicKey,
-        basePubkey: payer.publicKey,
-        seed: GREETING_SEED,
-        newAccountPubkey: greetedPubkey,
-        lamports,
-        space: GREETING_SIZE,
-        programId,
-      }),
-    );
-    await sendAndConfirmTransaction(connection, transaction, [payer]);
-  }
+  console.log(
+    'greetedBump: ',
+    greetedBump,
+  );
 }
 
 /**
